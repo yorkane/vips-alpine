@@ -1,9 +1,10 @@
-FROM alpine:3.13 as builder
+FROM alpine:3.14 as builder
 MAINTAINER Kevin Yuan <whyork@qq.com>
 ARG MOZ_VERSION=4.0.3
 ARG VIPS_VERSION=8.11.4
 WORKDIR /src/
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \ #speed up for chinese coder
+#speed up for chinese coder
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
 	&& ln -sf /usr/local/lib/ /usr/local/lib64 && ln -sf /usr/include/ /usr/local/include \
 	&& apk --update --no-cache add curl libarchive-tools libc6-compat g++ musl-dev autoconf automake cmake make libtool  nasm zlib zlib-dev file pkgconf libjpeg-turbo libjpeg-turbo-dev build-base \
 	orc orc-dev lcms2 lcms2-dev zlib-dev libxml2-dev glib-dev gobject-introspection-dev libexif-dev expat-dev libimagequant libimagequant-dev graphicsmagick-dev \
@@ -29,7 +30,7 @@ RUN cd /src/jpeg-archive-master \
 	&& apk add parallel \
 	&& make MOZJPEG_PREFIX=/usr/local && make install
 
-FROM alpine:3.13
+FROM alpine:3.14
 COPY --from=builder /src/vips-8.11.4/libvips/.libs/libvips*  "/usr/lib/"
 COPY --from=builder /src/vips-8.11.4/tools/.libs/* "/usr/bin/"
 COPY --from=builder /src/jpeg-archive-master/jpeg-recompress "/usr/local/bin/"
